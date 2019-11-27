@@ -10,7 +10,7 @@ app = Flask(__name__)
 conn = pymysql.connect(host='localhost',
                        port=3306,
                        user='root',
-                       password='#n21452429N',
+                       password='root', #set password accordingly
                        db='finstagram',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
