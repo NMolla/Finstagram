@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+Search
+<br>
+<form action="/searchByPoster" method="POST">
+    <input type="text" name="poster" placeholder="poster" required/> </br>
+    <input type="submit" value = Search />
+</form>
+
+<br>
+
+<style type="text/css">
+	table, th, td{
+		border: 1px solid black;
+	}
+</style>
+
+<table>
+	<th>Username</th>
+	<th>Photo ID</th>
+	<th>Caption</th>
+	<th>Time Posted</th>
+
+{% for line in photos %}
+	<tr>
+		<td>{{line.photoPoster}}</td>
+		<td>{{line.photoID}}</td>
+		<td>{{line.caption}}</td>
+		<td>{{line.postingDate}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+<a href="/home">Go back</a>
+
+{% if error %}
+	<p class="error"><strong>Error:</strong> {{error}}</p>
+{% endif %}
+
+</body>
+</html>

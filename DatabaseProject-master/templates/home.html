@@ -1,0 +1,115 @@
+<html xmlns="http://www.w3.org/1999/html">
+<head>
+</head>
+<body>
+<form action="/post" method="POST">
+	<h1>Welcome {{username}}</h1>
+	<input type="text" name = "filePath" placeholder="filePath" required/> </br>
+	<input type="number" name="allFollowers" placeholder = 'allFollowers' min="0" max="1"> </br>
+	<input type="text" name = "caption" placeholder="caption" required/> </br>
+	<input type="submit" value = Post />
+</form>
+
+<style type="text/css">
+	table, th, td{
+		border: 1px solid black;
+	}
+</style>
+
+<h2>My Feed</h2>
+<table>
+	<th>Username</th>
+	<th>Photo ID</th>
+	<th>Caption</th>
+	<th>Time Posted</th>
+
+{% for line in photos %}
+	<tr>
+		<td>{{line.photoPoster}}</td>
+		<td>{{line.photoID}}</td>
+		<td>{{line.caption}}</td>
+		<td>{{line.postingDate}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+<br>
+<h2>My Photos</h2>
+<table>
+	<th>Username</th>
+	<th>Photo ID</th>
+	<th>Caption</th>
+	<th>Time Posted</th>
+
+{% for line in myphotos %}
+	<tr>
+		<td>{{line.photoPoster}}</td>
+		<td>{{line.photoID}}</td>
+		<td>{{line.caption}}</td>
+		<td>{{line.postingDate}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+<br>
+<h2>My FriendGroups</h2>
+<h4>People In My Groups:</h4>
+<table>
+	<th>Group Name</th>
+	<th>Member Username</th>
+
+{% for line in mygroups %}
+	<tr>
+		<td>{{line.groupName}}</td>
+		<td>{{line.member_username}}</td>
+	</tr>
+{% endfor %}
+</table>
+<br>
+<h4>In Groups:</h4>
+<table>
+	<th>Owner Username</th>
+	<th>Group Name</th>
+
+
+{% for line in ingroups %}
+	<tr>
+		<td>{{line.owner_username}}</td>
+		<td>{{line.groupName}}</td>
+	</tr>
+{% endfor %}
+</table>
+
+<br>
+<a href="/follow">Follow</a>
+<br>
+<a href="/seeFollowRequests">See Follow Requests</a>
+<br>
+<a href="/searchPoster">Search Photos By Poster</a>
+<br>
+<a href="/tagPerson">Tag a Person in a Photo</a>
+<br>
+<a href="/viewTags">View Tags</a>
+<br>
+<form action="/createFriendGroup" method="POST">
+	<input type="text" name = "FriendGroupName" placeholder="FriendGroup Name" required/> </br>
+	<input type="text" name = "description" placeholder="description" required/> </br>
+	<input type="submit" value = "Create FriendGroup" />
+</form>
+<br>
+<form action="/addToFriendGroup" method="POST">
+	<input type="text" name = "FriendGroupName" placeholder="FriendGroup Name" required/> </br>
+	<input type="text" name = "username" placeholder="Username" required/> </br>
+	<input type="submit" value = "Add To FriendGroup" />
+</form>
+<br>
+<a href="/logout">Logout</a>
+
+{% if error %}
+	<p class="error"><strong>Error:</strong> {{error}}</p>
+{% endif %}
+
+</body>
+
+
+</html>
