@@ -5,7 +5,7 @@ from hashlib import sha256
 SALT = 'cs3083'
 # Initialize the app from Flask
 app = Flask(__name__)
-
+# my secret message
 # Configure MySQL
 conn = pymysql.connect(host='localhost',
                        port=3306,
