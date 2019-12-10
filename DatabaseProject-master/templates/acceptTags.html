@@ -18,5 +18,10 @@ ID | photoPoster
 </form>
 <br>
 <a href="/home">Go Back</a>
+<br>
+{% if error %}
+	<p class="error"><strong>Error:</strong> {{error}}</p>
+{% endif %}
+
 </body>
 </html>

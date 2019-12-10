@@ -5,12 +5,12 @@ from hashlib import sha256
 SALT = 'cs3083'
 # Initialize the app from Flask
 app = Flask(__name__)
-# my secret message
+
 # Configure MySQL
 conn = pymysql.connect(host='localhost',
                        port=3306,
                        user='root',
-                       password='#n21452429N',
+                       password='root',
                        db='finstagram',
                        charset='utf8mb4',
                        cursorclass=pymysql.cursors.DictCursor)
@@ -110,7 +110,7 @@ def home():
             FROM (SharedWith AS sw JOIN BelongTo AS bt ON \
             sw.groupOwner = bt.owner_username AND \
             sw.groupName = bt.groupName) NATURAL JOIN photo \
-            WHERE member_username = %s)) as allPhotos \
+            WHERE member_username = %s)) AS allPhotos \
             ORDER BY allPhotos.postingDate DESC'
     query2 = 'SELECT photoPoster, photoID, caption, postingDate \
               FROM photo WHERE photoPoster = %s \
@@ -144,9 +144,44 @@ def post():
     cursor.close()
     return redirect(url_for('home'))
 
+@app.route('/details', methods=['GET', 'POST'])
+def details():
+    user = session['username']
+    photoID = request.form['photoID']
+    photoPoster = request.form['photoPoster']
+    cursor = conn.cursor()
+    query = 'SELECT photoID, firstName AS posterFirstName, \
+    lastName AS posterLastName, username AS posterUsername, postingDate \
+    FROM photo JOIN person ON photo.photoPoster = person.username \
+    WHERE photoID = %s AND photo.photoPoster = %s'
+    cursor.execute(query, (photoID, photoPoster))
+    poster = cursor.fetchone()
+    query = 'SELECT photoID, firstName AS taggedFirstName, \
+    lastName AS taggedLastName, username AS taggedUsername \
+    FROM tagged NATURAL JOIN person WHERE tagStatus=1 AND photoID = %s'
+    cursor.execute(query, (photoID))
+    tagged = cursor.fetchall()
+    if poster:
+        if tagged:
+            return render_template('details.html', poster=poster, tagged=tagged)
+        else:
+            error = 'No one is tagged in this photo'
+            return render_template('details.html', poster=poster, error=error)
+    else:
+        error = 'Photo doesn\'t exist'
+        return render_template('details.html', error=error)
+
+
 @app.route('/acceptTags', methods=['GET', 'POST'])
 def acceptTags(): # fix accepting and displaying tags
-    pass
+    photoID = request.args['photoID']
+    username = session['username']
+    cursor = conn.cursor()
+    upd = 'UPDATE tagged SET tagStatus = 1 WHERE username = %s AND photoID = %s'
+    cursor.execute(upd, (username, photoID))
+    conn.commit()
+    cursor.close()
+    return redirect(url_for('home'))
 
 @app.route('/viewTags', methods=['GET', 'POST'])
 def viewTags():
@@ -157,7 +192,10 @@ def viewTags():
     cursor.execute(query, (user))
     data = cursor.fetchall()
     cursor.close()
-    return render_template('acceptTags.html', tags=data)
+    if data:
+        return render_template('acceptTags.html', tags=data)
+    else:
+        return redirect(url_for('home'))
 
 @app.route('/tagPerson', methods=['GET', 'POST'])
 def tagPerson():
@@ -210,7 +248,7 @@ def tag():
             cursor.execute(query, (follower, photoID))
             conn.commit()
             cursor.close()
-            return redirect(url_for('home.html'))
+            return redirect(url_for('home'))
         else:
             error = 'Can\'t perform the tag'
             return render_template('tagPerson.html', error=error)
@@ -237,13 +275,6 @@ def searchByPoster():
         cursor.execute(query, (poster, user))
         data = cursor.fetchall()
         if data:
-            query = 'SELECT photoPoster, photoID, caption, postingDate FROM Photo WHERE photoPoster=%s AND \
-                        allFollowers=1 ORDER BY postingDate DESC'
-            cursor = conn.cursor()
-            cursor.execute(query, (poster))
-            data = cursor.fetchall()
-            return render_template('searchByPoster.html', photos=data)
-        else:
             query = 'SELECT * \
                                 FROM belongto AS B JOIN sharedwith AS S ON B.groupName = S.groupName AND B.owner_username = S.groupowner\
                                 WHERE member_username = %s AND B.owner_username = %s'
@@ -253,6 +284,27 @@ def searchByPoster():
             if data:
                 query = 'SELECT photoPoster, photoID, caption, postingDate FROM Photo WHERE photoPoster=%s \
                                     ORDER BY postingDate DESC'
+                cursor = conn.cursor()
+                cursor.execute(query, (poster))
+                data = cursor.fetchall()
+                return render_template('searchByPoster.html', photos=data)
+            else:
+                query = 'SELECT photoPoster, photoID, caption, postingDate FROM Photo WHERE photoPoster=%s \
+                        and allFollowers = 1 ORDER BY postingDate DESC'
+                cursor = conn.cursor()
+                cursor.execute(query, (poster))
+                data = cursor.fetchall()
+                return render_template('searchByPoster.html', photos=data)
+        else:
+            query = 'SELECT * \
+                    FROM belongto AS B JOIN sharedwith AS S ON B.groupName = S.groupName AND B.owner_username = S.groupowner\
+                    WHERE member_username = %s AND B.owner_username = %s'
+            cursor = conn.cursor()
+            cursor.execute(query, (user, poster))
+            data = cursor.fetchall()
+            if data:
+                query = 'SELECT photoPoster, photoID, caption, postingDate FROM Photo WHERE photoPoster=%s \
+                        and allFollowers = 0 ORDER BY postingDate DESC'
                 cursor = conn.cursor()
                 cursor.execute(query, (poster))
                 data = cursor.fetchall()
@@ -319,6 +371,9 @@ def acceptFollow():
     cursor.close()
     return redirect(url_for('home'))
 
+@app.route('/createFG', methods=['GET', 'POST'])
+def createFG():
+    return render_template('createFriendGroup.html')
 
 @app.route('/createFriendGroup', methods=["GET", "POST"])
 def createFriendGroup():
@@ -343,6 +398,9 @@ def createFriendGroup():
         cursor.close()
         return redirect(url_for('home'))
 
+@app.route('/addToFG', methods=['GET', 'POST'])
+def addToFG():
+    return render_template('addToFriendGroup.html')
 
 @app.route('/addToFriendGroup', methods=["GET", "POST"])
 def addToFriendGroup():

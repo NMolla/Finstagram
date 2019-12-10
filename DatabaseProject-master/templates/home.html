@@ -22,13 +22,20 @@
 	<th>Photo ID</th>
 	<th>Caption</th>
 	<th>Time Posted</th>
-
+	<th>More Details</th>
 {% for line in photos %}
 	<tr>
 		<td>{{line.photoPoster}}</td>
 		<td>{{line.photoID}}</td>
 		<td>{{line.caption}}</td>
 		<td>{{line.postingDate}}</td>
+		<td>
+			<form action="/details" method="post">
+				<input type="hidden" name = "photoID" value = {{line.photoID}} />
+				<input type="hidden" name = "photoPoster" value = {{line.photoPoster}} />
+				<input type="submit" value="details" />
+			</form>
+		</td>
 	</tr>
 {% endfor %}
 </table>
@@ -81,6 +88,7 @@
 </table>
 
 <br>
+<br>
 <a href="/follow">Follow</a>
 <br>
 <a href="/seeFollowRequests">See Follow Requests</a>
@@ -91,17 +99,11 @@
 <br>
 <a href="/viewTags">View Tags</a>
 <br>
-<form action="/createFriendGroup" method="POST">
-	<input type="text" name = "FriendGroupName" placeholder="FriendGroup Name" required/> </br>
-	<input type="text" name = "description" placeholder="description" required/> </br>
-	<input type="submit" value = "Create FriendGroup" />
-</form>
+<a href="/createFG">Create FriendGroup</a>
 <br>
-<form action="/addToFriendGroup" method="POST">
-	<input type="text" name = "FriendGroupName" placeholder="FriendGroup Name" required/> </br>
-	<input type="text" name = "username" placeholder="Username" required/> </br>
-	<input type="submit" value = "Add To FriendGroup" />
-</form>
+<a href="/addToFG">Add to FriendGroup</a>
+<br>
+
 <br>
 <a href="/logout">Logout</a>
 
