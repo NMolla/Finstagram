@@ -104,7 +104,7 @@ def home():
             allPhotos.postingDate FROM \
             ((SELECT photoPoster, photoID, caption, postingDate \
             FROM Follow AS f JOIN Photo AS p on f.username_followed = p.photoPoster \
-            WHERE f.username_follower = %s AND f.followStatus = 1) \
+            WHERE f.username_follower = %s AND f.followStatus = 1 AND p.allFollowers = 1) \
             UNION \
             (SELECT photoPoster, photoID, caption, postingDate \
             FROM (SharedWith AS sw JOIN BelongTo AS bt ON \
